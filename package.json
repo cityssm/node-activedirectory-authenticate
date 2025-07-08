@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/cityssm/node-activedirectory-authenticate.git"
+    "url": "git+https://github.com/cityssm/node-activedirectory-authenticate.git"
   },
   "license": "MIT",
   "author": "The Corporation of the City of Sault Ste. Marie",
