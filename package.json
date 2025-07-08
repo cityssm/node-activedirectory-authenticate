@@ -1,57 +1,51 @@
 {
-  "author": "George Heeres <gheeres@gmail.com>",
-  "name": "activedirectory2",
-  "version": "2.2.0",
-  "description": "ActiveDirectory is an ldapjs client for authN (authentication) and authZ (authorization) for Microsoft Active Directory with range retrieval support for large Active Directory installations.",
+  "name": "@cityssm/activedirectory-authenticate",
+  "version": "1.0.0-beta.1",
+  "description": "Just Active Directory authentication and nothing more!",
+  "keywords": [
+    "ldap",
+    "active directory"
+  ],
+  "bugs": {
+    "url": "https://github.com/cityssm/node-activedirectory-authenticate/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cityssm/node-activedirectory-authenticate.git"
+  },
+  "license": "MIT",
+  "author": "The Corporation of the City of Sault Ste. Marie",
   "contributors": [
+    {
+      "name": "George Heeres",
+      "email": "gheeres@gmail.com"
+    },
     {
       "name": "James Sumners",
       "email": "james.sumners@gmail.com",
       "url": "http://jrfom.com"
     }
   ],
-  "main": "index.js",
-  "directories": {
-    "lib": "./lib"
-  },
-  "engines": {
-    "node": ">=4.0"
-  },
-  "keywords": [
-    "ldap",
-    "active directory"
-  ],
-  "bugs": {
-    "url": "https://github.com/jsumners/node-activedirectory/issues"
-  },
-  "dependencies": {
-    "abstract-logging": "^2.0.0",
-    "async": "^3.1.0",
-    "ldapjs": "^2.3.3",
-    "merge-options": "^2.0.0"
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./debug": "./debug.config.js"
   },
   "scripts": {
-    "lint": "standard | snazzy",
-    "lint:ci": "standard",
-    "test": "tap --no-coverage-report",
-    "test:ci": "tap",
-    "doc": "jsdoc -c jsdoc.json"
+    "coverage": "c8 node --test",
+    "test": "node --test"
   },
-  "precommit": [
-    "lint",
-    "test"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jsumners/node-activedirectory.git"
+  "dependencies": {
+    "debug": "^4.4.1",
+    "ldapts": "^8.0.5"
   },
-  "license": "MIT",
   "devDependencies": {
-    "jsdoc": "^3.6.5",
-    "pino": "^6.4.1",
-    "pre-commit": "^1.2.2",
-    "snazzy": "^8.0.0",
-    "standard": "^14.3.4",
-    "tap": "^14.10.8"
+    "@types/debug": "^4.1.12",
+    "@types/node": "^24.0.10",
+    "eslint-config-cityssm": "^26.0.0",
+    "prettier-config-cityssm": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
