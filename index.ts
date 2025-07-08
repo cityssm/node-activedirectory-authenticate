@@ -11,7 +11,7 @@ import { getUserNamePart } from './utilities.js'
 
 const debug = Debug(`${DEBUG_NAMESPACE}:index`)
 
-export type ActiveDirectoryAuthenticateConfig = ClientOptions & {
+export interface ActiveDirectoryAuthenticateConfig {
   /**
    * The base distinguished name (DN) for the LDAP search.
    * This is the starting point in the directory tree where the search for users will begin.
@@ -53,10 +53,26 @@ export type ActiveDirectoryAuthenticateResult =
     }
 
 export default class ActiveDirectoryAuthenticate {
-  readonly #ldapClientOptions: ActiveDirectoryAuthenticateConfig
+  readonly #activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig
+  readonly #clientOptions: ClientOptions
 
-  constructor(ldapClientOptions: ActiveDirectoryAuthenticateConfig) {
-    this.#ldapClientOptions = ldapClientOptions
+  /**
+   * Creates an instance of ActiveDirectoryAuthenticate.
+   * This class is used to authenticate users against an Active Directory server using LDAP.
+   * It requires the LDAP client options and the Active Directory configuration for binding.
+   * @param ldapClientOptions - The options for the LDAP client connection.
+   * This includes the URL of the LDAP server and any other connection options.
+   * Example: { url: 'ldap://example.com' }
+   * @param activeDirectoryAuthenticateConfig - The configuration for Active Directory authentication.
+   * This includes the base DN for searching users, the bind user DN, and the bind user password.
+   * Example: { baseDN: 'DC=example,DC=com', bindUserDN: 'CN=admin,CN=Users,DC=example,DC=com', bindUserPassword: 'password123' }
+   */
+  constructor(
+    ldapClientOptions: ClientOptions,
+    activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig
+  ) {
+    this.#clientOptions = ldapClientOptions
+    this.#activeDirectoryAuthenticateConfig = activeDirectoryAuthenticateConfig
   }
 
   async authenticate(
@@ -73,24 +89,25 @@ export default class ActiveDirectoryAuthenticate {
 
       return {
         success: false,
+
         error
       }
     }
 
-    const client = new LdapClient(this.#ldapClientOptions)
+    const client = new LdapClient(this.#clientOptions)
 
     let userBindDN = ''
     let sAMAccountName = ''
 
     try {
       await client.bind(
-        this.#ldapClientOptions.bindUserDN,
-        this.#ldapClientOptions.bindUserPassword
+        this.#activeDirectoryAuthenticateConfig.bindUserDN,
+        this.#activeDirectoryAuthenticateConfig.bindUserPassword
       )
 
       debug(
         'Successfully bound to LDAP server as %s',
-        this.#ldapClientOptions.bindUserDN
+        this.#activeDirectoryAuthenticateConfig.bindUserDN
       )
 
       sAMAccountName = getUserNamePart(userName)
@@ -108,10 +125,13 @@ export default class ActiveDirectoryAuthenticate {
         ]
       })
 
-      const resultUser = await client.search(this.#ldapClientOptions.baseDN, {
-        scope: 'sub',
-        filter: searchFilter
-      })
+      const resultUser = await client.search(
+        this.#activeDirectoryAuthenticateConfig.baseDN,
+        {
+          scope: 'sub',
+          filter: searchFilter
+        }
+      )
 
       if (resultUser.searchEntries.length === 0) {
         const error = {
@@ -156,3 +176,5 @@ export default class ActiveDirectoryAuthenticate {
     }
   }
 }
+
+export type { ClientOptions as LdapClientOptions } from 'ldapts'

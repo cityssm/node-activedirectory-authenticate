@@ -1,5 +1,5 @@
 import { type ClientOptions } from 'ldapts';
-export type ActiveDirectoryAuthenticateConfig = ClientOptions & {
+export interface ActiveDirectoryAuthenticateConfig {
     /**
      * The base distinguished name (DN) for the LDAP search.
      * This is the starting point in the directory tree where the search for users will begin.
@@ -24,7 +24,7 @@ export type ActiveDirectoryAuthenticateConfig = ClientOptions & {
      * Example: 'password123'
      */
     bindUserPassword: string;
-};
+}
 export type ActiveDirectoryAuthenticateResult = {
     success: false;
     error: unknown;
@@ -34,6 +34,18 @@ export type ActiveDirectoryAuthenticateResult = {
 };
 export default class ActiveDirectoryAuthenticate {
     #private;
-    constructor(ldapClientOptions: ActiveDirectoryAuthenticateConfig);
+    /**
+     * Creates an instance of ActiveDirectoryAuthenticate.
+     * This class is used to authenticate users against an Active Directory server using LDAP.
+     * It requires the LDAP client options and the Active Directory configuration for binding.
+     * @param ldapClientOptions - The options for the LDAP client connection.
+     * This includes the URL of the LDAP server and any other connection options.
+     * Example: { url: 'ldap://example.com' }
+     * @param activeDirectoryAuthenticateConfig - The configuration for Active Directory authentication.
+     * This includes the base DN for searching users, the bind user DN, and the bind user password.
+     * Example: { baseDN: 'DC=example,DC=com', bindUserDN: 'CN=admin,CN=Users,DC=example,DC=com', bindUserPassword: 'password123' }
+     */
+    constructor(ldapClientOptions: ClientOptions, activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig);
     authenticate(userName: string, password: string): Promise<ActiveDirectoryAuthenticateResult>;
 }
+export type { ClientOptions as LdapClientOptions } from 'ldapts';
