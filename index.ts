@@ -1,6 +1,6 @@
 import Debug from 'debug'
 import {
-  type ClientOptions,
+  type ClientOptions as LdapClientOptions,
   AndFilter,
   EqualityFilter,
   Client as LdapClient
@@ -54,7 +54,7 @@ export type ActiveDirectoryAuthenticateResult =
 
 export default class ActiveDirectoryAuthenticate {
   readonly #activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig
-  readonly #clientOptions: ClientOptions
+  readonly #clientOptions: LdapClientOptions
 
   /**
    * Creates an instance of ActiveDirectoryAuthenticate.
@@ -68,7 +68,7 @@ export default class ActiveDirectoryAuthenticate {
    * Example: { baseDN: 'DC=example,DC=com', bindUserDN: 'CN=admin,CN=Users,DC=example,DC=com', bindUserPassword: 'password123' }
    */
   constructor(
-    ldapClientOptions: ClientOptions,
+    ldapClientOptions: LdapClientOptions,
     activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig
   ) {
     this.#clientOptions = ldapClientOptions

@@ -1,4 +1,4 @@
-import { type ClientOptions } from 'ldapts';
+import { type ClientOptions as LdapClientOptions } from 'ldapts';
 export interface ActiveDirectoryAuthenticateConfig {
     /**
      * The base distinguished name (DN) for the LDAP search.
@@ -45,7 +45,7 @@ export default class ActiveDirectoryAuthenticate {
      * This includes the base DN for searching users, the bind user DN, and the bind user password.
      * Example: { baseDN: 'DC=example,DC=com', bindUserDN: 'CN=admin,CN=Users,DC=example,DC=com', bindUserPassword: 'password123' }
      */
-    constructor(ldapClientOptions: ClientOptions, activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig);
+    constructor(ldapClientOptions: LdapClientOptions, activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig);
     authenticate(userName: string, password: string): Promise<ActiveDirectoryAuthenticateResult>;
 }
 export type { ClientOptions as LdapClientOptions } from 'ldapts';
