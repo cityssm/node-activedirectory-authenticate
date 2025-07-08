@@ -1,1 +1,13 @@
+.github/
 .vscode/
+node_modules/
+test/
+
+.deepsource.toml
+.gitignore
+.npmignore
+.prettierignore
+
+eslint.config.*
+prettier.config.*
+tsconfig.json
