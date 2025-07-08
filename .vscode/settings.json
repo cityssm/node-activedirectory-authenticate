@@ -1,0 +1,6 @@
+{
+  "sonarlint.connectedMode.project": {
+    "connectionId": "cityssm",
+    "projectKey": "cityssm_node-activedirectory-authenticate"
+  }
+}
