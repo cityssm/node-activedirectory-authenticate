@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import Debug from 'debug';
 import { DEBUG_ENABLE_NAMESPACES } from '../debug.config.js';
 import ActiveDirectoryAuthenticate from '../index.js';
-import { activeDirectoryAuthenticateConfig, failureUsers, successUsers } from './testConfig.js';
+import { activeDirectoryAuthenticateConfig, failureUsers, successUsers } from './config.local.js';
 Debug.enable(DEBUG_ENABLE_NAMESPACES);
 const debug = Debug('activedirectory-authenticate:test');
 await describe('activedirectory-authenticate', async () => {

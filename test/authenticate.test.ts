@@ -10,7 +10,7 @@ import {
   activeDirectoryAuthenticateConfig,
   failureUsers,
   successUsers
-} from './testConfig.js'
+} from './config.local.js'
 
 Debug.enable(DEBUG_ENABLE_NAMESPACES)
 
