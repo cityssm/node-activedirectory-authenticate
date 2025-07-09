@@ -21,8 +21,19 @@ export default class ActiveDirectoryAuthenticate {
         this.#clientOptions = ldapClientOptions;
         this.#activeDirectoryAuthenticateConfig = activeDirectoryAuthenticateConfig;
     }
+    /**
+     * Authenticates a user against the Active Directory server.
+     * @param userName - The user name to authenticate. Domain names are removed.
+     * Can be in the format 'domain\username', 'username', or 'username@domain'.
+     * @param password - The password for the user to authenticate.
+     * @returns A promise that resolves to an object indicating the success or failure of the authentication.
+     * If successful, it returns the bind user DN and the sAMAccountName of the authenticated user.
+     * If unsuccessful, it returns an error type and message.
+     */
     async authenticate(userName, password) {
-        // Skip authentication if an empty username or password is provided.
+        /*
+         * Skip authentication if an empty username or password is provided.
+         */
         if (userName === '' || password === '') {
             return {
                 success: false,
@@ -30,9 +41,16 @@ export default class ActiveDirectoryAuthenticate {
                 errorType: 'EMPTY_USER_NAME_OR_PASSWORD'
             };
         }
+        /*
+         * Create a new LDAP client instance with the provided options.
+         */
         const client = new LdapClient(this.#clientOptions);
         let userBindDN = '';
         let sAMAccountName = '';
+        /*
+         * Bind to the LDAP server using the bind user DN and password.
+         * This is necessary to perform a search for the user.
+         */
         try {
             await client.bind(this.#activeDirectoryAuthenticateConfig.bindUserDN, this.#activeDirectoryAuthenticateConfig.bindUserPassword);
             debug('Successfully bound to LDAP server as %s', this.#activeDirectoryAuthenticateConfig.bindUserDN);
@@ -74,6 +92,11 @@ export default class ActiveDirectoryAuthenticate {
         finally {
             await client.unbind();
         }
+        /*
+         * Bind to the LDAP server using the user's DN and password to authenticate.
+         * If the bind is successful, the user is authenticated.
+         * If the bind fails, an error is returned.
+         */
         try {
             await client.bind(userBindDN, password);
             return {

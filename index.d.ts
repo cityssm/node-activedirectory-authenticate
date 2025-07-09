@@ -50,6 +50,15 @@ export default class ActiveDirectoryAuthenticate {
      * Example: { baseDN: 'DC=example,DC=com', bindUserDN: 'CN=admin,CN=Users,DC=example,DC=com', bindUserPassword: 'password123' }
      */
     constructor(ldapClientOptions: LdapClientOptions, activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig);
+    /**
+     * Authenticates a user against the Active Directory server.
+     * @param userName - The user name to authenticate. Domain names are removed.
+     * Can be in the format 'domain\username', 'username', or 'username@domain'.
+     * @param password - The password for the user to authenticate.
+     * @returns A promise that resolves to an object indicating the success or failure of the authentication.
+     * If successful, it returns the bind user DN and the sAMAccountName of the authenticated user.
+     * If unsuccessful, it returns an error type and message.
+     */
     authenticate(userName: string, password: string): Promise<ActiveDirectoryAuthenticateResult>;
 }
 export type { ClientOptions as LdapClientOptions } from 'ldapts';
