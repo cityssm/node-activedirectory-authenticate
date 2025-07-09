@@ -3,8 +3,10 @@
   "version": "1.0.0-beta.0",
   "description": "Just Active Directory authentication and nothing more!",
   "keywords": [
+    "active-directory",
     "ldap",
-    "active directory"
+    "authentication",
+    "activedirectory"
   ],
   "bugs": {
     "url": "https://github.com/cityssm/node-activedirectory-authenticate/issues"
