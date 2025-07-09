@@ -50,8 +50,8 @@ export type ActiveDirectoryAuthenticateResult = { bindUserDN: string } & (
   | {
       success: false
 
-      errorType: ActiveDirectoryAuthenticateErrorType
       error?: unknown
+      errorType: ActiveDirectoryAuthenticateErrorType
     }
   | {
       success: true
