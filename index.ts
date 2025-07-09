@@ -152,8 +152,8 @@ export default class ActiveDirectoryAuthenticate {
       const resultUser = await client.search(
         this.#activeDirectoryAuthenticateConfig.baseDN,
         {
-          scope: 'sub',
-          filter: searchFilter
+          filter: searchFilter,
+          scope: 'sub'
         }
       )
 

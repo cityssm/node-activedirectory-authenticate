@@ -68,8 +68,8 @@ export default class ActiveDirectoryAuthenticate {
                 ]
             });
             const resultUser = await client.search(this.#activeDirectoryAuthenticateConfig.baseDN, {
-                scope: 'sub',
-                filter: searchFilter
+                filter: searchFilter,
+                scope: 'sub'
             });
             if (resultUser.searchEntries.length === 0) {
                 return {
