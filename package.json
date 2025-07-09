@@ -1,6 +1,6 @@
 {
   "name": "@cityssm/activedirectory-authenticate",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Just Active Directory authentication and nothing more!",
   "keywords": [
     "active-directory",
