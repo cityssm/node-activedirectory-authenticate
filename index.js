@@ -24,14 +24,10 @@ export default class ActiveDirectoryAuthenticate {
     async authenticate(userName, password) {
         // Skip authentication if an empty username or password is provided.
         if (userName === '' || password === '') {
-            const error = {
-                code: 0x31,
-                errno: 'LDAP_INVALID_CREDENTIALS',
-                description: 'User name or password is empty'
-            };
             return {
                 success: false,
-                error
+                bindUserDN: '',
+                errorType: 'EMPTY_USER_NAME_OR_PASSWORD'
             };
         }
         const client = new LdapClient(this.#clientOptions);
@@ -58,14 +54,11 @@ export default class ActiveDirectoryAuthenticate {
                 filter: searchFilter
             });
             if (resultUser.searchEntries.length === 0) {
-                const error = {
-                    code: 0x31,
-                    errno: 'LDAP_INVALID_CREDENTIALS',
-                    description: `User not found for user name: ${sAMAccountName}`
-                };
                 return {
                     success: false,
-                    error
+                    bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
+                    error: new Error(`User with sAMAccountName "${sAMAccountName}" not found.`),
+                    errorType: 'USER_NOT_FOUND'
                 };
             }
             userBindDN = resultUser.searchEntries[0].dn;
@@ -73,7 +66,9 @@ export default class ActiveDirectoryAuthenticate {
         catch (error) {
             return {
                 success: false,
-                error
+                bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
+                error,
+                errorType: 'LDAP_SEARCH_FAILED'
             };
         }
         finally {
@@ -83,13 +78,16 @@ export default class ActiveDirectoryAuthenticate {
             await client.bind(userBindDN, password);
             return {
                 success: true,
+                bindUserDN: userBindDN,
                 sAMAccountName
             };
         }
         catch (error) {
             return {
                 success: false,
-                error
+                bindUserDN: userBindDN,
+                error,
+                errorType: 'AUTHENTICATION_FAILED'
             };
         }
         finally {

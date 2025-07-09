@@ -11,6 +11,12 @@ import { getUserNamePart } from './utilities.js'
 
 const debug = Debug(`${DEBUG_NAMESPACE}:index`)
 
+export type ActiveDirectoryAuthenticateErrorType =
+  | 'AUTHENTICATION_FAILED'
+  | 'EMPTY_USER_NAME_OR_PASSWORD'
+  | 'LDAP_SEARCH_FAILED'
+  | 'USER_NOT_FOUND'
+
 export interface ActiveDirectoryAuthenticateConfig {
   /**
    * The base distinguished name (DN) for the LDAP search.
@@ -40,17 +46,19 @@ export interface ActiveDirectoryAuthenticateConfig {
   bindUserPassword: string
 }
 
-export type ActiveDirectoryAuthenticateResult =
+export type ActiveDirectoryAuthenticateResult = { bindUserDN: string } & (
   | {
       success: false
 
-      error: unknown
+      errorType: ActiveDirectoryAuthenticateErrorType
+      error?: unknown
     }
   | {
       success: true
 
       sAMAccountName: string
     }
+)
 
 export default class ActiveDirectoryAuthenticate {
   readonly #activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig
@@ -81,16 +89,11 @@ export default class ActiveDirectoryAuthenticate {
   ): Promise<ActiveDirectoryAuthenticateResult> {
     // Skip authentication if an empty username or password is provided.
     if (userName === '' || password === '') {
-      const error = {
-        code: 0x31,
-        errno: 'LDAP_INVALID_CREDENTIALS',
-        description: 'User name or password is empty'
-      }
-
       return {
         success: false,
 
-        error
+        bindUserDN: '',
+        errorType: 'EMPTY_USER_NAME_OR_PASSWORD'
       }
     }
 
@@ -134,15 +137,14 @@ export default class ActiveDirectoryAuthenticate {
       )
 
       if (resultUser.searchEntries.length === 0) {
-        const error = {
-          code: 0x31,
-          errno: 'LDAP_INVALID_CREDENTIALS',
-          description: `User not found for user name: ${sAMAccountName}`
-        }
         return {
           success: false,
 
-          error
+          bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
+          error: new Error(
+            `User with sAMAccountName "${sAMAccountName}" not found.`
+          ),
+          errorType: 'USER_NOT_FOUND'
         }
       }
 
@@ -151,7 +153,9 @@ export default class ActiveDirectoryAuthenticate {
       return {
         success: false,
 
-        error
+        bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
+        error,
+        errorType: 'LDAP_SEARCH_FAILED'
       }
     } finally {
       await client.unbind()
@@ -163,13 +167,16 @@ export default class ActiveDirectoryAuthenticate {
       return {
         success: true,
 
+        bindUserDN: userBindDN,
         sAMAccountName
       }
     } catch (error) {
       return {
         success: false,
 
-        error
+        bindUserDN: userBindDN,
+        error,
+        errorType: 'AUTHENTICATION_FAILED'
       }
     } finally {
       await client.unbind()

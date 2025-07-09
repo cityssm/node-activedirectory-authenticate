@@ -1,4 +1,5 @@
 import { type ClientOptions as LdapClientOptions } from 'ldapts';
+export type ActiveDirectoryAuthenticateErrorType = 'AUTHENTICATION_FAILED' | 'EMPTY_USER_NAME_OR_PASSWORD' | 'LDAP_SEARCH_FAILED' | 'USER_NOT_FOUND';
 export interface ActiveDirectoryAuthenticateConfig {
     /**
      * The base distinguished name (DN) for the LDAP search.
@@ -26,12 +27,15 @@ export interface ActiveDirectoryAuthenticateConfig {
     bindUserPassword: string;
 }
 export type ActiveDirectoryAuthenticateResult = {
+    bindUserDN: string;
+} & ({
     success: false;
-    error: unknown;
+    errorType: ActiveDirectoryAuthenticateErrorType;
+    error?: unknown;
 } | {
     success: true;
     sAMAccountName: string;
-};
+});
 export default class ActiveDirectoryAuthenticate {
     #private;
     /**
