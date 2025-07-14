@@ -1,5 +1,5 @@
 import { type ClientOptions as LdapClientOptions } from 'ldapts';
-export type ActiveDirectoryAuthenticateErrorType = 'AUTHENTICATION_FAILED' | 'EMPTY_USER_NAME_OR_PASSWORD' | 'LDAP_SEARCH_FAILED' | 'USER_NOT_FOUND';
+import { type ActiveDirectoryAuthenticateErrorType } from './errorTypes.js';
 export interface ActiveDirectoryAuthenticateConfig {
     /**
      * The base distinguished name (DN) for the LDAP search.
@@ -61,4 +61,5 @@ export default class ActiveDirectoryAuthenticate {
      */
     authenticate(userName: string, password: string): Promise<ActiveDirectoryAuthenticateResult>;
 }
+export { type ActiveDirectoryAuthenticateErrorType, activeDirectoryErrors } from './errorTypes.js';
 export type { ClientOptions as LdapClientOptions } from 'ldapts';

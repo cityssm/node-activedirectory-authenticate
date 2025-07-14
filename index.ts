@@ -3,19 +3,18 @@ import {
   type ClientOptions as LdapClientOptions,
   AndFilter,
   EqualityFilter,
+  InvalidCredentialsError,
   Client as LdapClient
 } from 'ldapts'
 
 import { DEBUG_NAMESPACE } from './debug.config.js'
+import {
+  type ActiveDirectoryAuthenticateErrorType,
+  adLdapBindErrors
+} from './errorTypes.js'
 import { getUserNamePart } from './utilities.js'
 
 const debug = Debug(`${DEBUG_NAMESPACE}:index`)
-
-export type ActiveDirectoryAuthenticateErrorType =
-  | 'AUTHENTICATION_FAILED'
-  | 'EMPTY_USER_NAME_OR_PASSWORD'
-  | 'LDAP_SEARCH_FAILED'
-  | 'USER_NOT_FOUND'
 
 export interface ActiveDirectoryAuthenticateConfig {
   /**
@@ -105,7 +104,7 @@ export default class ActiveDirectoryAuthenticate {
         success: false,
 
         bindUserDN: '',
-        errorType: 'EMPTY_USER_NAME_OR_PASSWORD'
+        errorType: userName === '' ? 'EMPTY_USER_NAME' : 'EMPTY_PASSWORD'
       }
     }
 
@@ -165,7 +164,7 @@ export default class ActiveDirectoryAuthenticate {
           error: new Error(
             `User with sAMAccountName "${sAMAccountName}" not found.`
           ),
-          errorType: 'USER_NOT_FOUND'
+          errorType: 'ACCOUNT_NOT_FOUND'
         }
       }
 
@@ -198,17 +197,36 @@ export default class ActiveDirectoryAuthenticate {
         sAMAccountName
       }
     } catch (error) {
+      let errorType: ActiveDirectoryAuthenticateErrorType =
+        'AUTHENTICATION_FAILED'
+
+      if (error instanceof InvalidCredentialsError) {
+        for (const [errorMessagePiece, errorTypePiece] of Object.entries(
+          adLdapBindErrors
+        )) {
+          if (error.message.includes(errorMessagePiece)) {
+            errorType = errorTypePiece
+            break
+          }
+        }
+      }
+
       return {
         success: false,
 
         bindUserDN: userBindDN,
         error,
-        errorType: 'AUTHENTICATION_FAILED'
+        errorType
       }
     } finally {
       await client.unbind()
     }
   }
 }
+
+export {
+  type ActiveDirectoryAuthenticateErrorType,
+  activeDirectoryErrors
+} from './errorTypes.js'
 
 export type { ClientOptions as LdapClientOptions } from 'ldapts'

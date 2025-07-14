@@ -1,6 +1,7 @@
 import Debug from 'debug';
-import { AndFilter, EqualityFilter, Client as LdapClient } from 'ldapts';
+import { AndFilter, EqualityFilter, InvalidCredentialsError, Client as LdapClient } from 'ldapts';
 import { DEBUG_NAMESPACE } from './debug.config.js';
+import { adLdapBindErrors } from './errorTypes.js';
 import { getUserNamePart } from './utilities.js';
 const debug = Debug(`${DEBUG_NAMESPACE}:index`);
 export default class ActiveDirectoryAuthenticate {
@@ -38,7 +39,7 @@ export default class ActiveDirectoryAuthenticate {
             return {
                 success: false,
                 bindUserDN: '',
-                errorType: 'EMPTY_USER_NAME_OR_PASSWORD'
+                errorType: userName === '' ? 'EMPTY_USER_NAME' : 'EMPTY_PASSWORD'
             };
         }
         /*
@@ -76,7 +77,7 @@ export default class ActiveDirectoryAuthenticate {
                     success: false,
                     bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
                     error: new Error(`User with sAMAccountName "${sAMAccountName}" not found.`),
-                    errorType: 'USER_NOT_FOUND'
+                    errorType: 'ACCOUNT_NOT_FOUND'
                 };
             }
             userBindDN = resultUser.searchEntries[0].dn;
@@ -106,11 +107,20 @@ export default class ActiveDirectoryAuthenticate {
             };
         }
         catch (error) {
+            let errorType = 'AUTHENTICATION_FAILED';
+            if (error instanceof InvalidCredentialsError) {
+                for (const [errorMessagePiece, errorTypePiece] of Object.entries(adLdapBindErrors)) {
+                    if (error.message.includes(errorMessagePiece)) {
+                        errorType = errorTypePiece;
+                        break;
+                    }
+                }
+            }
             return {
                 success: false,
                 bindUserDN: userBindDN,
                 error,
-                errorType: 'AUTHENTICATION_FAILED'
+                errorType
             };
         }
         finally {
@@ -118,3 +128,4 @@ export default class ActiveDirectoryAuthenticate {
         }
     }
 }
+export { activeDirectoryErrors } from './errorTypes.js';
