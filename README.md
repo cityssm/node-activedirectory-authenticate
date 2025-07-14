@@ -31,7 +31,11 @@ const authenticator = new ActiveDirectoryAuthenticate(
 
     // The DN of the user to bind for searching the directory.
     bindUserDN: 'CN=administrator,DC=example,DC=com',
-    bindUserPassword: 'p@ssword'
+    bindUserPassword: 'p@ssword',
+
+    // Temporarily cache user bind DNs to reduce LDAP lookups on immediate retries,
+    // like typoed passwords.
+    cacheUserBindDNs: true
   }
 )
 
