@@ -35,12 +35,42 @@ const authenticator = new ActiveDirectoryAuthenticate(
   }
 )
 
-const loginResult = await authenticator.authenticate('example\\userName', 'pass123')
+const loginResult = await authenticator.authenticate(
+  'example\\userName',
+  'pass123'
+)
 
 if (loginResult.success) {
   // Credentials validated, log the user in!
+} else {
+  console.log(loginResult.errorType)
+  // => "ACCOUNT_NOT_FOUND"
 }
 ```
 
 See [ldapts](https://www.npmjs.com/package/ldapts) for the available connection options,
 including timeouts and TLS settings.
+
+### Error Types
+
+Active Directory Authenticate provides descriptive error types,
+and translates the codes for common Active Directory errors.
+See the `errorType` value in the result object.
+
+| Error Type              | Description                                   | Active Directory Code |
+| ----------------------- | --------------------------------------------- | --------------------- |
+| `EMPTY_USER_NAME`       | Password empty.                               |                       |
+| `EMPTY_PASSWORD`        | Password empty.                               |                       |
+| `ACCOUNT_NOT_FOUND`     | Unable to find the user via LDAP search.      |                       |
+| `LDAP_SEARCH_FAILED`    | Unknown error searching LDAP for the user.    |                       |
+| `AUTHENTICATION_FAILED` | Unknown authentication error.                 |                       |
+| `NO_SUCH_USER`          | User not found.                               | `525`                 |
+| `LOGON_FAILURE`         | Invalid credentials.                          | `52e`                 |
+| `INVALID_LOGIN_HOURS`   | User not permitted to logon at current time.  | `530`                 |
+| `INVALID_WORKSTATION`   | User not permitted to logon from workstation. | `531`                 |
+| `PASSWORD_EXPIRED`      | Password expired.                             | `532`                 |
+| `ACCOUNT_DISABLED`      | Account disabled.                             | `533`                 |
+| `INVALID_LOGIN_TYPE`    | User not granted the requested logon type.    | `534`                 |
+| `ACCOUNT_EXPIRED`       | Account expired.                              | `701`                 |
+| `PASSWORD_MUST_CHANGE`  | User must reset password.                     | `773`                 |
+| `ACCOUNT_LOCKED_OUT`    | User account locked.                          | `775`                 |
