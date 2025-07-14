@@ -39,11 +39,11 @@
   },
   "dependencies": {
     "debug": "^4.4.1",
-    "ldapts": "^8.0.5"
+    "ldapts": "^8.0.6"
   },
   "devDependencies": {
     "@types/debug": "^4.1.12",
-    "@types/node": "^24.0.12",
+    "@types/node": "^24.0.13",
     "eslint-config-cityssm": "^26.0.0",
     "prettier-config-cityssm": "^1.0.0"
   },
