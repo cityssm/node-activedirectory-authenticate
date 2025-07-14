@@ -43,6 +43,14 @@ export interface ActiveDirectoryAuthenticateConfig {
    * Example: 'password123'
    */
   bindUserPassword: string
+
+  /**
+   * Optional. If true, the user bind DNs will be cached for 60 seconds for failed logons.
+   * This can improve performance by avoiding repeated searches for the same user.
+   * If false, the user bind DNs will not be cached and will be looked up each time.
+   * Default is false.
+   */
+  cacheUserBindDNs?: boolean
 }
 
 export type ActiveDirectoryAuthenticateResult = { bindUserDN: string } & (
@@ -62,6 +70,14 @@ export type ActiveDirectoryAuthenticateResult = { bindUserDN: string } & (
 export default class ActiveDirectoryAuthenticate {
   readonly #activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig
   readonly #clientOptions: LdapClientOptions
+
+  readonly #userBindDNs = new Map<
+    string,
+    {
+      timeoutId: NodeJS.Timeout
+      userBindDN: string
+    }
+  >()
 
   /**
    * Creates an instance of ActiveDirectoryAuthenticate.
@@ -114,71 +130,84 @@ export default class ActiveDirectoryAuthenticate {
 
     const client = new LdapClient(this.#clientOptions)
 
-    let userBindDN = ''
-    let sAMAccountName = ''
+    const sAMAccountName = getUserNamePart(userName)
+
+    let userBindDN: string | undefined =
+      this.#userBindDNs.get(sAMAccountName)?.userBindDN
 
     /*
      * Bind to the LDAP server using the bind user DN and password.
      * This is necessary to perform a search for the user.
      */
 
-    try {
-      await client.bind(
-        this.#activeDirectoryAuthenticateConfig.bindUserDN,
-        this.#activeDirectoryAuthenticateConfig.bindUserPassword
-      )
+    if (userBindDN === undefined) {
+      try {
+        await client.bind(
+          this.#activeDirectoryAuthenticateConfig.bindUserDN,
+          this.#activeDirectoryAuthenticateConfig.bindUserPassword
+        )
 
-      debug(
-        'Successfully bound to LDAP server as %s',
-        this.#activeDirectoryAuthenticateConfig.bindUserDN
-      )
+        debug(
+          'Successfully bound to LDAP server as %s',
+          this.#activeDirectoryAuthenticateConfig.bindUserDN
+        )
 
-      sAMAccountName = getUserNamePart(userName)
+        const searchFilter = new AndFilter({
+          filters: [
+            new EqualityFilter({
+              attribute: 'sAMAccountName',
+              value: sAMAccountName
+            }),
+            new EqualityFilter({
+              attribute: 'objectClass',
+              value: 'user'
+            })
+          ]
+        })
 
-      const searchFilter = new AndFilter({
-        filters: [
-          new EqualityFilter({
-            attribute: 'sAMAccountName',
-            value: sAMAccountName
-          }),
-          new EqualityFilter({
-            attribute: 'objectClass',
-            value: 'user'
-          })
-        ]
-      })
+        const resultUser = await client.search(
+          this.#activeDirectoryAuthenticateConfig.baseDN,
+          {
+            filter: searchFilter,
+            scope: 'sub'
+          }
+        )
 
-      const resultUser = await client.search(
-        this.#activeDirectoryAuthenticateConfig.baseDN,
-        {
-          filter: searchFilter,
-          scope: 'sub'
+        if (resultUser.searchEntries.length === 0) {
+          return {
+            success: false,
+
+            bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
+            error: new Error(
+              `User with sAMAccountName "${sAMAccountName}" not found.`
+            ),
+            errorType: 'ACCOUNT_NOT_FOUND'
+          }
         }
-      )
 
-      if (resultUser.searchEntries.length === 0) {
+        userBindDN = resultUser.searchEntries[0].dn
+
+        if (this.#activeDirectoryAuthenticateConfig.cacheUserBindDNs ?? false) {
+          const timeoutId = setTimeout(() => {
+            this.#userBindDNs.delete(sAMAccountName)
+          }, 60_000) // Cache for 60 seconds
+
+          this.#userBindDNs.set(sAMAccountName, {
+            timeoutId,
+            userBindDN
+          })
+        }
+      } catch (error) {
         return {
           success: false,
 
           bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
-          error: new Error(
-            `User with sAMAccountName "${sAMAccountName}" not found.`
-          ),
-          errorType: 'ACCOUNT_NOT_FOUND'
+          error,
+          errorType: 'LDAP_SEARCH_FAILED'
         }
+      } finally {
+        await client.unbind()
       }
-
-      userBindDN = resultUser.searchEntries[0].dn
-    } catch (error) {
-      return {
-        success: false,
-
-        bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
-        error,
-        errorType: 'LDAP_SEARCH_FAILED'
-      }
-    } finally {
-      await client.unbind()
     }
 
     /*
@@ -221,6 +250,20 @@ export default class ActiveDirectoryAuthenticate {
     } finally {
       await client.unbind()
     }
+  }
+
+  /**
+   * Clears the cache of user bind DNs.
+   * This method is used to clear the cached user bind DNs and their associated timeouts.
+   * Useful when you want to ensure that the next authentication attempt will not use a cached user bind DN,
+   * or if you are exiting your application.
+   */
+  clearCache(): void {
+    for (const { timeoutId } of this.#userBindDNs.values()) {
+      clearTimeout(timeoutId)
+    }
+
+    this.#userBindDNs.clear()
   }
 }
 

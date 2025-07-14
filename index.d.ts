@@ -25,6 +25,13 @@ export interface ActiveDirectoryAuthenticateConfig {
      * Example: 'password123'
      */
     bindUserPassword: string;
+    /**
+     * Optional. If true, the user bind DNs will be cached for 60 seconds for failed logons.
+     * This can improve performance by avoiding repeated searches for the same user.
+     * If false, the user bind DNs will not be cached and will be looked up each time.
+     * Default is false.
+     */
+    cacheUserBindDNs?: boolean;
 }
 export type ActiveDirectoryAuthenticateResult = {
     bindUserDN: string;
@@ -60,6 +67,13 @@ export default class ActiveDirectoryAuthenticate {
      * If unsuccessful, it returns an error type and message.
      */
     authenticate(userName: string, password: string): Promise<ActiveDirectoryAuthenticateResult>;
+    /**
+     * Clears the cache of user bind DNs.
+     * This method is used to clear the cached user bind DNs and their associated timeouts.
+     * Useful when you want to ensure that the next authentication attempt will not use a cached user bind DN,
+     * or if you are exiting your application.
+     */
+    clearCache(): void;
 }
 export { type ActiveDirectoryAuthenticateErrorType, activeDirectoryErrors } from './errorTypes.js';
 export type { ClientOptions as LdapClientOptions } from 'ldapts';
