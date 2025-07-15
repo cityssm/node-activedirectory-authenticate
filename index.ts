@@ -123,10 +123,6 @@ export default class ActiveDirectoryAuthenticate {
       }
     }
 
-    /*
-     * Skip authentication if an empty username or password is provided.
-     */
-
     if (userName === '' || password === '') {
       return {
         success: false,
@@ -136,57 +132,73 @@ export default class ActiveDirectoryAuthenticate {
       }
     }
 
-    /*
-     * Create a new LDAP client instance with the provided options.
-     */
-
-    const client = new LdapClient(this.#clientOptions)
-
     const sAMAccountName = getUserNamePart(userName)
 
     let userBindDN: string | undefined =
       this.#userBindDNsCache?.get(sAMAccountName)
 
-    /*
-     * Bind to the LDAP server using the bind user DN and password.
-     * This is necessary to perform a search for the user.
-     */
-
     if (userBindDN === undefined) {
-      try {
-        await client.bind(
-          this.#activeDirectoryAuthenticateConfig.bindUserDN,
-          this.#activeDirectoryAuthenticateConfig.bindUserPassword
-        )
+      const userSearchResult = await this.#findUserBindDN(sAMAccountName)
 
-        debug(
-          'Successfully bound to LDAP server as %s',
-          this.#activeDirectoryAuthenticateConfig.bindUserDN
-        )
+      if (!userSearchResult.success) {
+        return userSearchResult.result
+      }
 
-        const searchFilter = new AndFilter({
-          filters: [
-            new EqualityFilter({
-              attribute: 'sAMAccountName',
-              value: sAMAccountName
-            }),
-            new EqualityFilter({
-              attribute: 'objectClass',
-              value: 'user'
-            })
-          ]
-        })
+      userBindDN = userSearchResult.userBindDN
 
-        const resultUser = await client.search(
-          this.#activeDirectoryAuthenticateConfig.baseDN,
-          {
-            filter: searchFilter,
-            scope: 'sub'
-          }
-        )
+      if (this.#activeDirectoryAuthenticateConfig.cacheUserBindDNs ?? false) {
+        this.#userBindDNsCache?.set(sAMAccountName, userBindDN)
+      }
+    }
 
-        if (resultUser.searchEntries.length === 0) {
-          return {
+    return await this.#tryUserBind(userBindDN, password, sAMAccountName)
+  }
+
+  async #findUserBindDN(
+    sAMAccountName: string
+  ): Promise<
+    | { result: ActiveDirectoryAuthenticateResult; success: false }
+    | { success: true; userBindDN: string }
+  > {
+    const client = new LdapClient(this.#clientOptions)
+
+    try {
+      await client.bind(
+        this.#activeDirectoryAuthenticateConfig.bindUserDN,
+        this.#activeDirectoryAuthenticateConfig.bindUserPassword
+      )
+
+      debug(
+        'Successfully bound to LDAP server as %s',
+        this.#activeDirectoryAuthenticateConfig.bindUserDN
+      )
+
+      const searchFilter = new AndFilter({
+        filters: [
+          new EqualityFilter({
+            attribute: 'sAMAccountName',
+            value: sAMAccountName
+          }),
+          new EqualityFilter({
+            attribute: 'objectClass',
+            value: 'user'
+          })
+        ]
+      })
+
+      const resultUser = await client.search(
+        this.#activeDirectoryAuthenticateConfig.baseDN,
+        {
+          filter: searchFilter,
+          scope: 'sub'
+        }
+      )
+
+      if (resultUser.searchEntries.length === 0) {
+        return {
+          success: false,
+
+          result: {
             success: false,
 
             bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
@@ -196,30 +208,35 @@ export default class ActiveDirectoryAuthenticate {
             errorType: 'ACCOUNT_NOT_FOUND'
           }
         }
+      }
 
-        userBindDN = resultUser.searchEntries[0].dn
+      return {
+        success: true,
+        userBindDN: resultUser.searchEntries[0].dn
+      }
+    } catch (error) {
+      return {
+        success: false,
 
-        if (this.#activeDirectoryAuthenticateConfig.cacheUserBindDNs ?? false) {
-          this.#userBindDNsCache?.set(sAMAccountName, userBindDN)
-        }
-      } catch (error) {
-        return {
+        result: {
           success: false,
 
           bindUserDN: this.#activeDirectoryAuthenticateConfig.bindUserDN,
           error,
           errorType: 'LDAP_SEARCH_FAILED'
         }
-      } finally {
-        await client.unbind()
       }
+    } finally {
+      await client.unbind()
     }
+  }
 
-    /*
-     * Bind to the LDAP server using the user's DN and password to authenticate.
-     * If the bind is successful, the user is authenticated.
-     * If the bind fails, an error is returned.
-     */
+  async #tryUserBind(
+    userBindDN: string,
+    password: string,
+    sAMAccountName: string
+  ): Promise<ActiveDirectoryAuthenticateResult> {
+    const client = new LdapClient(this.#clientOptions)
 
     try {
       await client.bind(userBindDN, password)
@@ -244,7 +261,6 @@ export default class ActiveDirectoryAuthenticate {
           }
         }
       }
-
       return {
         success: false,
 
