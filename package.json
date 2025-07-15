@@ -38,6 +38,7 @@
     "test": "node --test"
   },
   "dependencies": {
+    "@cacheable/node-cache": "^1.5.8",
     "debug": "^4.4.1",
     "ldapts": "^8.0.6"
   },

@@ -1,3 +1,4 @@
+import NodeCache from '@cacheable/node-cache';
 import Debug from 'debug';
 import { AndFilter, EqualityFilter, InvalidCredentialsError, Client as LdapClient } from 'ldapts';
 import { DEBUG_NAMESPACE } from './debug.config.js';
@@ -7,7 +8,7 @@ const debug = Debug(`${DEBUG_NAMESPACE}:index`);
 export default class ActiveDirectoryAuthenticate {
     #activeDirectoryAuthenticateConfig;
     #clientOptions;
-    #userBindDNs = new Map();
+    #userBindDNsCache;
     /**
      * Creates an instance of ActiveDirectoryAuthenticate.
      * This class is used to authenticate users against an Active Directory server using LDAP.
@@ -22,11 +23,17 @@ export default class ActiveDirectoryAuthenticate {
     constructor(ldapClientOptions, activeDirectoryAuthenticateConfig) {
         this.#clientOptions = ldapClientOptions;
         this.#activeDirectoryAuthenticateConfig = activeDirectoryAuthenticateConfig;
+        if (this.#activeDirectoryAuthenticateConfig.cacheUserBindDNs ?? false) {
+            this.#userBindDNsCache = new NodeCache({
+                stdTTL: 60, // Cache for 60 seconds
+                useClones: false // Use the same object reference for cached items
+            });
+        }
     }
     /**
      * Authenticates a user against the Active Directory server.
      * @param userName - The user name to authenticate. Domain names are removed.
-     * Can be in the format 'domain\username', 'username', or 'username@domain'.
+     * Can be in the format 'domain\username', 'username', or 'username@domain.com'.
      * @param password - The password for the user to authenticate.
      * @returns A promise that resolves to an object indicating the success or failure of the authentication.
      * If successful, it returns the bind user DN and the sAMAccountName of the authenticated user.
@@ -56,7 +63,7 @@ export default class ActiveDirectoryAuthenticate {
          */
         const client = new LdapClient(this.#clientOptions);
         const sAMAccountName = getUserNamePart(userName);
-        let userBindDN = this.#userBindDNs.get(sAMAccountName)?.userBindDN;
+        let userBindDN = this.#userBindDNsCache?.get(sAMAccountName);
         /*
          * Bind to the LDAP server using the bind user DN and password.
          * This is necessary to perform a search for the user.
@@ -91,13 +98,7 @@ export default class ActiveDirectoryAuthenticate {
                 }
                 userBindDN = resultUser.searchEntries[0].dn;
                 if (this.#activeDirectoryAuthenticateConfig.cacheUserBindDNs ?? false) {
-                    const timeoutId = setTimeout(() => {
-                        this.#userBindDNs.delete(sAMAccountName);
-                    }, 60_000); // Cache for 60 seconds
-                    this.#userBindDNs.set(sAMAccountName, {
-                        timeoutId,
-                        userBindDN
-                    });
+                    this.#userBindDNsCache?.set(sAMAccountName, userBindDN);
                 }
             }
             catch (error) {
@@ -153,10 +154,7 @@ export default class ActiveDirectoryAuthenticate {
      * or if you are exiting your application.
      */
     clearCache() {
-        for (const { timeoutId } of this.#userBindDNs.values()) {
-            clearTimeout(timeoutId);
-        }
-        this.#userBindDNs.clear();
+        this.#userBindDNsCache?.flushAll();
     }
 }
 export { activeDirectoryErrors } from './errorTypes.js';

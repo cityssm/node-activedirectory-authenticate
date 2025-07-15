@@ -60,7 +60,7 @@ export default class ActiveDirectoryAuthenticate {
     /**
      * Authenticates a user against the Active Directory server.
      * @param userName - The user name to authenticate. Domain names are removed.
-     * Can be in the format 'domain\username', 'username', or 'username@domain'.
+     * Can be in the format 'domain\username', 'username', or 'username@domain.com'.
      * @param password - The password for the user to authenticate.
      * @returns A promise that resolves to an object indicating the success or failure of the authentication.
      * If successful, it returns the bind user DN and the sAMAccountName of the authenticated user.

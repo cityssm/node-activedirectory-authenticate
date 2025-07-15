@@ -1,3 +1,4 @@
+import NodeCache from '@cacheable/node-cache'
 import Debug from 'debug'
 import {
   type ClientOptions as LdapClientOptions,
@@ -71,13 +72,7 @@ export default class ActiveDirectoryAuthenticate {
   readonly #activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig
   readonly #clientOptions: LdapClientOptions
 
-  readonly #userBindDNs = new Map<
-    string,
-    {
-      timeoutId: NodeJS.Timeout
-      userBindDN: string
-    }
-  >()
+  readonly #userBindDNsCache: NodeCache | undefined
 
   /**
    * Creates an instance of ActiveDirectoryAuthenticate.
@@ -96,12 +91,19 @@ export default class ActiveDirectoryAuthenticate {
   ) {
     this.#clientOptions = ldapClientOptions
     this.#activeDirectoryAuthenticateConfig = activeDirectoryAuthenticateConfig
+
+    if (this.#activeDirectoryAuthenticateConfig.cacheUserBindDNs ?? false) {
+      this.#userBindDNsCache = new NodeCache({
+        stdTTL: 60, // Cache for 60 seconds
+        useClones: false // Use the same object reference for cached items
+      })
+    }
   }
 
   /**
    * Authenticates a user against the Active Directory server.
    * @param userName - The user name to authenticate. Domain names are removed.
-   * Can be in the format 'domain\username', 'username', or 'username@domain'.
+   * Can be in the format 'domain\username', 'username', or 'username@domain.com'.
    * @param password - The password for the user to authenticate.
    * @returns A promise that resolves to an object indicating the success or failure of the authentication.
    * If successful, it returns the bind user DN and the sAMAccountName of the authenticated user.
@@ -143,7 +145,7 @@ export default class ActiveDirectoryAuthenticate {
     const sAMAccountName = getUserNamePart(userName)
 
     let userBindDN: string | undefined =
-      this.#userBindDNs.get(sAMAccountName)?.userBindDN
+      this.#userBindDNsCache?.get(sAMAccountName)
 
     /*
      * Bind to the LDAP server using the bind user DN and password.
@@ -198,14 +200,7 @@ export default class ActiveDirectoryAuthenticate {
         userBindDN = resultUser.searchEntries[0].dn
 
         if (this.#activeDirectoryAuthenticateConfig.cacheUserBindDNs ?? false) {
-          const timeoutId = setTimeout(() => {
-            this.#userBindDNs.delete(sAMAccountName)
-          }, 60_000) // Cache for 60 seconds
-
-          this.#userBindDNs.set(sAMAccountName, {
-            timeoutId,
-            userBindDN
-          })
+          this.#userBindDNsCache?.set(sAMAccountName, userBindDN)
         }
       } catch (error) {
         return {
@@ -269,11 +264,7 @@ export default class ActiveDirectoryAuthenticate {
    * or if you are exiting your application.
    */
   clearCache(): void {
-    for (const { timeoutId } of this.#userBindDNs.values()) {
-      clearTimeout(timeoutId)
-    }
-
-    this.#userBindDNs.clear()
+    this.#userBindDNsCache?.flushAll()
   }
 }
 
