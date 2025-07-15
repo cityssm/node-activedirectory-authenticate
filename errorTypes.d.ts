@@ -11,4 +11,4 @@ export declare const activeDirectoryErrors: {
     readonly '775': "ACCOUNT_LOCKED_OUT";
 };
 export declare const adLdapBindErrors: Record<` data ${keyof typeof activeDirectoryErrors}, `, (typeof activeDirectoryErrors)[keyof typeof activeDirectoryErrors]>;
-export type ActiveDirectoryAuthenticateErrorType = 'ACCOUNT_NOT_FOUND' | 'AUTHENTICATION_FAILED' | 'EMPTY_PASSWORD' | 'EMPTY_USER_NAME' | 'LDAP_SEARCH_FAILED' | (typeof activeDirectoryErrors)[keyof typeof activeDirectoryErrors];
+export type ActiveDirectoryAuthenticateErrorType = 'ACCOUNT_NOT_FOUND' | 'AUTHENTICATION_FAILED' | 'CONFIGURATION_ERROR' | 'EMPTY_PASSWORD' | 'EMPTY_USER_NAME' | 'LDAP_SEARCH_FAILED' | (typeof activeDirectoryErrors)[keyof typeof activeDirectoryErrors];

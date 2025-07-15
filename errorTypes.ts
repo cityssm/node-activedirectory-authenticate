@@ -30,6 +30,7 @@ export const adLdapBindErrors: Record<
 export type ActiveDirectoryAuthenticateErrorType =
   | 'ACCOUNT_NOT_FOUND'
   | 'AUTHENTICATION_FAILED'
+  | 'CONFIGURATION_ERROR'
   | 'EMPTY_PASSWORD'
   | 'EMPTY_USER_NAME'
   | 'LDAP_SEARCH_FAILED'

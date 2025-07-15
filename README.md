@@ -63,7 +63,8 @@ See the `errorType` value in the result object.
 
 | Error Type              | Description                                   | Active Directory Code |
 | ----------------------- | --------------------------------------------- | --------------------- |
-| `EMPTY_USER_NAME`       | Password empty.                               |                       |
+| `CONFIGURATION_ERROR`   | Configuration error.                          |                       |
+| `EMPTY_USER_NAME`       | User name empty.                              |                       |
 | `EMPTY_PASSWORD`        | Password empty.                               |                       |
 | `ACCOUNT_NOT_FOUND`     | Unable to find the user via LDAP search.      |                       |
 | `LDAP_SEARCH_FAILED`    | Unknown error searching LDAP for the user.    |                       |

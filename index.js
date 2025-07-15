@@ -33,6 +33,14 @@ export default class ActiveDirectoryAuthenticate {
      * If unsuccessful, it returns an error type and message.
      */
     async authenticate(userName, password) {
+        if (this.#clientOptions.url === '') {
+            return {
+                success: false,
+                bindUserDN: '',
+                error: new Error('LDAP client URL is not configured.'),
+                errorType: 'CONFIGURATION_ERROR'
+            };
+        }
         /*
          * Skip authentication if an empty username or password is provided.
          */
