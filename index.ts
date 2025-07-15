@@ -1,4 +1,4 @@
-import NodeCache from '@cacheable/node-cache'
+import { NodeCache } from '@cacheable/node-cache'
 import Debug from 'debug'
 import {
   type ClientOptions as LdapClientOptions,

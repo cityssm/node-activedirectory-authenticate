@@ -1,4 +1,4 @@
-import NodeCache from '@cacheable/node-cache';
+import { NodeCache } from '@cacheable/node-cache';
 import Debug from 'debug';
 import { AndFilter, EqualityFilter, InvalidCredentialsError, Client as LdapClient } from 'ldapts';
 import { DEBUG_NAMESPACE } from './debug.config.js';
