@@ -132,6 +132,10 @@ export default class ActiveDirectoryAuthenticate {
       }
     }
 
+    /*
+     * Find the user bind DN for the given user name.
+     */
+
     const sAMAccountName = getUserNamePart(userName)
 
     let userBindDN: string | undefined =
@@ -150,6 +154,10 @@ export default class ActiveDirectoryAuthenticate {
         this.#userBindDNsCache?.set(sAMAccountName, userBindDN)
       }
     }
+
+    /*
+     * Try to bind with the user bind DN and password.
+     */
 
     return await this.#tryUserBind(userBindDN, password, sAMAccountName)
   }

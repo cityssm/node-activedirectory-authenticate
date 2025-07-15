@@ -55,6 +55,9 @@ export default class ActiveDirectoryAuthenticate {
                 errorType: userName === '' ? 'EMPTY_USER_NAME' : 'EMPTY_PASSWORD'
             };
         }
+        /*
+         * Find the user bind DN for the given user name.
+         */
         const sAMAccountName = getUserNamePart(userName);
         let userBindDN = this.#userBindDNsCache?.get(sAMAccountName);
         if (userBindDN === undefined) {
@@ -67,6 +70,9 @@ export default class ActiveDirectoryAuthenticate {
                 this.#userBindDNsCache?.set(sAMAccountName, userBindDN);
             }
         }
+        /*
+         * Try to bind with the user bind DN and password.
+         */
         return await this.#tryUserBind(userBindDN, password, sAMAccountName);
     }
     async #findUserBindDN(sAMAccountName) {
