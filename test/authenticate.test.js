@@ -3,7 +3,7 @@ import { after, describe, it } from 'node:test';
 import Debug from 'debug';
 import { DEBUG_ENABLE_NAMESPACES } from '../debug.config.js';
 import ActiveDirectoryAuthenticate from '../index.js';
-import { activeDirectoryAuthenticateConfig, failureUsers, ldapClientOptions, successUsers } from './config.local.js';
+import { activeDirectoryAuthenticateConfig, failureUsers, ldapClientOptions, ldapUrl, successUsers } from './config.local.js';
 Debug.enable(DEBUG_ENABLE_NAMESPACES);
 const debug = Debug('activedirectory-authenticate:test');
 await describe('activedirectory-authenticate', async () => {
@@ -25,4 +25,12 @@ await describe('activedirectory-authenticate', async () => {
             assert.strictEqual(result.success, false, `Authentication for "${userName}" should fail`);
         });
     }
+});
+await describe('activedirectory-authenticate:url', async () => {
+    await it('should authenticate a user', async () => {
+        const authenticator = new ActiveDirectoryAuthenticate(ldapUrl, activeDirectoryAuthenticateConfig);
+        const result = await authenticator.authenticate(successUsers[0][0], successUsers[0][1]);
+        debug(`Authentication result for "${successUsers[0][0]}":`, result);
+        assert.strictEqual(result.success, true, `Authentication should succeed for "${successUsers[0][0]}"`);
+    });
 });

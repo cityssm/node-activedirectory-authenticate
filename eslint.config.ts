@@ -11,7 +11,7 @@ const config = tseslint.config(eslintConfigCityssm, {
       'warn',
       {
         cspell: {
-          words: [...cspellWords, 'activedirectory']
+          words: [...cspellWords, 'activedirectory', 'ldaps']
         }
       }
     ]

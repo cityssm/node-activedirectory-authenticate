@@ -29,7 +29,7 @@ const authenticator = new ActiveDirectoryAuthenticate(
     // The base distinguished name (DN) for the LDAP search.
     baseDN: 'DC=example,DC=com',
 
-    // The DN of the user to bind for searching the directory.
+    // The DN of the user to bind to for searching the directory.
     bindUserDN: 'CN=administrator,DC=example,DC=com',
     bindUserPassword: 'p@ssword',
 
@@ -52,10 +52,34 @@ if (loginResult.success) {
 }
 ```
 
-See [ldapts](https://www.npmjs.com/package/ldapts) for the available connection options,
-including timeouts and TLS settings.
+## Options
 
-### Error Types
+```javascript
+import ActiveDirectoryAuthenticate from '@cityssm/activedirectory-authenticate'
+
+const authenticator = new ActiveDirectoryAuthenticate(
+  ldapClientUrlOrOptions,
+  activeDirectoryAuthenticateOptions
+)
+```
+
+### `ldapClientUrlOrOptions`
+
+In most situations, passing an LDAP URL should be sufficient.
+
+If additional configuration is required, like timeout adjustments and TLS settings,
+see the available [ldapts](https://www.npmjs.com/package/ldapts) initialization options.
+
+### `activeDirectoryAuthenticateOptions`
+
+| Option             | Description                                                          | Required         |
+| ------------------ | -------------------------------------------------------------------- | ---------------- |
+| `baseDN`           | The base distinguished name (DN) for the LDAP search.                | ⭐               |
+| `bindUserDN`       | The DN for the user to bind to for searching the directory.          | ⭐               |
+| `bindUserPassword` | The password for the `bindUserDN`.                                   | ⭐               |
+| `cacheUserBindDNs` | Whether or not to temporarily cache user bind DNs, reducing lookups. | Default: `false` |
+
+## Error Types
 
 Active Directory Authenticate provides descriptive error types,
 and translates the codes for common Active Directory errors.

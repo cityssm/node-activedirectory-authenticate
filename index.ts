@@ -78,18 +78,25 @@ export default class ActiveDirectoryAuthenticate {
    * Creates an instance of ActiveDirectoryAuthenticate.
    * This class is used to authenticate users against an Active Directory server using LDAP.
    * It requires the LDAP client options and the Active Directory configuration for binding.
-   * @param ldapClientOptions - The options for the LDAP client connection.
-   * This includes the URL of the LDAP server and any other connection options.
-   * Example: { url: 'ldap://example.com' }
+   * @param ldapClientUrlOrOptions - The LDAP URL, or the options for the LDAP client connection.
+   * This can be a string in the format 'ldap://example.com' or 'ldaps://example.com',
+   * or an object of type LdapClientOptions.
+   * If a string is provided, it will be used as the URL for the LDAP connection.
+   * If an object is provided, it should contain the necessary options for connecting to the LDAP server.
+   * Example: { url: 'ldap://example.com' } or { url: 'ldaps://example.com', timeout: 5000 }
    * @param activeDirectoryAuthenticateConfig - The configuration for Active Directory authentication.
    * This includes the base DN for searching users, the bind user DN, and the bind user password.
    * Example: { baseDN: 'DC=example,DC=com', bindUserDN: 'CN=admin,CN=Users,DC=example,DC=com', bindUserPassword: 'password123' }
    */
   constructor(
-    ldapClientOptions: LdapClientOptions,
+    ldapClientUrlOrOptions: LdapClientOptions | string,
     activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig
   ) {
-    this.#clientOptions = ldapClientOptions
+    this.#clientOptions =
+      typeof ldapClientUrlOrOptions === 'string'
+        ? { url: ldapClientUrlOrOptions }
+        : ldapClientUrlOrOptions
+
     this.#activeDirectoryAuthenticateConfig = activeDirectoryAuthenticateConfig
 
     if (this.#activeDirectoryAuthenticateConfig.cacheUserBindDNs ?? false) {
