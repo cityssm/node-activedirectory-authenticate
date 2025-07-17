@@ -72,7 +72,7 @@ export default class ActiveDirectoryAuthenticate {
   readonly #activeDirectoryAuthenticateConfig: ActiveDirectoryAuthenticateConfig
   readonly #clientOptions: LdapClientOptions
 
-  readonly #userBindDNsCache: NodeCache | undefined
+  readonly #userBindDNsCache: NodeCache<string> | undefined
 
   /**
    * Creates an instance of ActiveDirectoryAuthenticate.
