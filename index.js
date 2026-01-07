@@ -81,6 +81,15 @@ export default class ActiveDirectoryAuthenticate {
          */
         return await this.#tryUserBind(userBindDN, password, sAMAccountName);
     }
+    /**
+     * Clears the cache of user bind DNs.
+     * This method is used to clear the cached user bind DNs and their associated timeouts.
+     * Useful when you want to ensure that the next authentication attempt will not use a cached user bind DN,
+     * or if you are exiting your application.
+     */
+    clearCache() {
+        this.#userBindDNsCache?.flushAll();
+    }
     async #findUserBindDN(sAMAccountName) {
         const client = new LdapClient(this.#clientOptions);
         try {
@@ -163,15 +172,6 @@ export default class ActiveDirectoryAuthenticate {
         finally {
             await client.unbind();
         }
-    }
-    /**
-     * Clears the cache of user bind DNs.
-     * This method is used to clear the cached user bind DNs and their associated timeouts.
-     * Useful when you want to ensure that the next authentication attempt will not use a cached user bind DN,
-     * or if you are exiting your application.
-     */
-    clearCache() {
-        this.#userBindDNsCache?.flushAll();
     }
 }
 export { activeDirectoryErrors } from './errorTypes.js';
