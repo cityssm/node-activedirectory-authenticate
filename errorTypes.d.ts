@@ -1,6 +1,6 @@
 export declare const activeDirectoryErrors: {
-    readonly '52e': "LOGON_FAILURE";
     readonly '525': "NO_SUCH_USER";
+    readonly '52e': "LOGON_FAILURE";
     readonly '530': "INVALID_LOGIN_HOURS";
     readonly '531': "INVALID_WORKSTATION";
     readonly '532': "PASSWORD_EXPIRED";

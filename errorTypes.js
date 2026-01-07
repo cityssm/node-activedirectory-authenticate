@@ -1,6 +1,6 @@
 export const activeDirectoryErrors = {
-    '52e': 'LOGON_FAILURE',
     '525': 'NO_SUCH_USER',
+    '52e': 'LOGON_FAILURE',
     '530': 'INVALID_LOGIN_HOURS',
     '531': 'INVALID_WORKSTATION',
     '532': 'PASSWORD_EXPIRED',
@@ -11,8 +11,8 @@ export const activeDirectoryErrors = {
     '775': 'ACCOUNT_LOCKED_OUT'
 };
 export const adLdapBindErrors = {
-    ' data 52e, ': activeDirectoryErrors['52e'],
     ' data 525, ': activeDirectoryErrors['525'],
+    ' data 52e, ': activeDirectoryErrors['52e'],
     ' data 530, ': activeDirectoryErrors['530'],
     ' data 531, ': activeDirectoryErrors['531'],
     ' data 532, ': activeDirectoryErrors['532'],

@@ -1,3 +1,2 @@
-import { type Config } from 'eslint-config-cityssm';
-declare const config: Config;
+declare const config: import("eslint-config-cityssm/eslint.packageConfig.js").Config[];
 export default config;

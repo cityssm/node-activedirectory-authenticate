@@ -12,6 +12,7 @@ await describe('activedirectory-authenticate', async () => {
         authenticator.clearCache();
     });
     for (const [userName, password] of successUsers) {
+        // eslint-disable-next-line no-await-in-loop
         await it(`should authenticate user "${userName}"`, async () => {
             const result = await authenticator.authenticate(userName, password);
             debug(`Authentication result for "${userName}":`, result);
@@ -19,6 +20,7 @@ await describe('activedirectory-authenticate', async () => {
         });
     }
     for (const [userName, password] of failureUsers) {
+        // eslint-disable-next-line no-await-in-loop
         await it(`should not authenticate user "${userName}"`, async () => {
             const result = await authenticator.authenticate(userName, password);
             debug(`Authentication result for "${userName}":`, result);
