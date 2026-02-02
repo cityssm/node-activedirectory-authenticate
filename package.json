@@ -45,7 +45,7 @@
   "devDependencies": {
     "@types/debug": "^4.1.12",
     "@types/node": "^25.0.3",
-    "eslint-config-cityssm": "^36.1.0",
+    "eslint-config-cityssm": "^37.1.0",
     "prettier-config-cityssm": "^1.0.0"
   },
   "engines": {
