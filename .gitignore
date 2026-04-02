@@ -2,5 +2,7 @@
 coverage/
 node_modules/
 
+.tsbuildinfo
+
 test/config.*
 test/testConfig.*

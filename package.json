@@ -28,25 +28,32 @@
       "url": "http://jrfom.com"
     }
   ],
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": "./index.js",
     "./debug": "./debug.config.js"
   },
+  "files": [
+    "debug.config.*",
+    "errorTypes.*",
+    "index.*",
+    "utilities.*"
+  ],
   "scripts": {
     "coverage": "c8 node --test",
     "test": "node --test"
   },
   "dependencies": {
-    "@cacheable/node-cache": "^2.0.1",
+    "@cacheable/node-cache": "^3.0.0",
     "debug": "^4.4.3",
-    "ldapts": "^8.1.6"
+    "ldapts": "^8.1.7"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.12",
-    "@types/node": "^25.3.0",
-    "eslint-config-cityssm": "^38.2.1",
-    "prettier-config-cityssm": "^2.1.1"
+    "@types/debug": "^4.1.13",
+    "@types/node": "^25.5.0",
+    "eslint-config-cityssm": "^39.0.0",
+    "prettier-config-cityssm": "^2.1.2"
   },
   "engines": {
     "node": ">=18.0.0"
