@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2025 The Corporation of the City of Sault Ste. Marie
+Copyright (c) 2026 The Corporation of the City of Sault Ste. Marie
 Copyright (c) 2014 George Heeres
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
