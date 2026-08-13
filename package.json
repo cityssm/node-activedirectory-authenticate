@@ -45,17 +45,17 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@cacheable/node-cache": "^3.0.0",
+    "@cacheable/node-cache": "^3.1.1",
     "debug": "^4.4.3",
-    "ldapts": "^8.1.7"
+    "ldapts": "^9.0.0"
   },
   "devDependencies": {
     "@types/debug": "^4.1.13",
-    "@types/node": "^25.5.0",
-    "eslint-config-cityssm": "^39.0.0",
-    "prettier-config-cityssm": "^2.1.2"
+    "@types/node": "^26.2.0",
+    "eslint-config-cityssm": "^45.0.0",
+    "prettier-config-cityssm": "^2.1.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   }
 }

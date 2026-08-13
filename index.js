@@ -3,7 +3,7 @@ import Debug from 'debug';
 import { AndFilter, EqualityFilter, InvalidCredentialsError, Client as LdapClient } from 'ldapts';
 import { DEBUG_NAMESPACE } from './debug.config.js';
 import { adLdapBindErrors } from './errorTypes.js';
-import { getUserNamePart } from './utilities.js';
+import { getUsernamePart } from './utilities.js';
 const debug = Debug(`${DEBUG_NAMESPACE}:index`);
 export default class ActiveDirectoryAuthenticate {
     #activeDirectoryAuthenticateConfig;
@@ -38,14 +38,14 @@ export default class ActiveDirectoryAuthenticate {
     }
     /**
      * Authenticates a user against the Active Directory server.
-     * @param userName - The user name to authenticate. Domain names are removed.
+     * @param username - The user name to authenticate. Domain names are removed.
      * Can be in the format 'domain\username', 'username', or 'username@domain.com'.
      * @param password - The password for the user to authenticate.
      * @returns A promise that resolves to an object indicating the success or failure of the authentication.
      * If successful, it returns the bind user DN and the sAMAccountName of the authenticated user.
      * If unsuccessful, it returns an error type and message.
      */
-    async authenticate(userName, password) {
+    async authenticate(username, password) {
         if (this.#clientOptions.url === '') {
             return {
                 success: false,
@@ -54,17 +54,17 @@ export default class ActiveDirectoryAuthenticate {
                 errorType: 'CONFIGURATION_ERROR'
             };
         }
-        if (userName === '' || password === '') {
+        if (username === '' || password === '') {
             return {
                 success: false,
                 bindUserDN: '',
-                errorType: userName === '' ? 'EMPTY_USER_NAME' : 'EMPTY_PASSWORD'
+                errorType: username === '' ? 'EMPTY_USER_NAME' : 'EMPTY_PASSWORD'
             };
         }
         /*
          * Find the user bind DN for the given user name.
          */
-        const sAMAccountName = getUserNamePart(userName);
+        const sAMAccountName = getUsernamePart(username);
         let userBindDN = this.#userBindDNsCache?.get(sAMAccountName);
         if (userBindDN === undefined) {
             const userSearchResult = await this.#findUserBindDN(sAMAccountName);

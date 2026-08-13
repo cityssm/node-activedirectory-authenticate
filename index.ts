@@ -13,7 +13,7 @@ import {
   type ActiveDirectoryAuthenticateErrorType,
   adLdapBindErrors
 } from './errorTypes.js'
-import { getUserNamePart } from './utilities.js'
+import { getUsernamePart } from './utilities.js'
 
 const debug = Debug(`${DEBUG_NAMESPACE}:index`)
 
@@ -109,7 +109,7 @@ export default class ActiveDirectoryAuthenticate {
 
   /**
    * Authenticates a user against the Active Directory server.
-   * @param userName - The user name to authenticate. Domain names are removed.
+   * @param username - The user name to authenticate. Domain names are removed.
    * Can be in the format 'domain\username', 'username', or 'username@domain.com'.
    * @param password - The password for the user to authenticate.
    * @returns A promise that resolves to an object indicating the success or failure of the authentication.
@@ -117,7 +117,7 @@ export default class ActiveDirectoryAuthenticate {
    * If unsuccessful, it returns an error type and message.
    */
   async authenticate(
-    userName: string,
+    username: string,
     password: string
   ): Promise<ActiveDirectoryAuthenticateResult> {
     if (this.#clientOptions.url === '') {
@@ -130,12 +130,12 @@ export default class ActiveDirectoryAuthenticate {
       }
     }
 
-    if (userName === '' || password === '') {
+    if (username === '' || password === '') {
       return {
         success: false,
 
         bindUserDN: '',
-        errorType: userName === '' ? 'EMPTY_USER_NAME' : 'EMPTY_PASSWORD'
+        errorType: username === '' ? 'EMPTY_USER_NAME' : 'EMPTY_PASSWORD'
       }
     }
 
@@ -143,7 +143,7 @@ export default class ActiveDirectoryAuthenticate {
      * Find the user bind DN for the given user name.
      */
 
-    const sAMAccountName = getUserNamePart(userName)
+    const sAMAccountName = getUsernamePart(username)
 
     let userBindDN: string | undefined =
       this.#userBindDNsCache?.get(sAMAccountName)
