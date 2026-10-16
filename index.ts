@@ -179,7 +179,6 @@ export default class ActiveDirectoryAuthenticate {
     this.#userBindDNsCache?.flushAll()
   }
 
-  // eslint-disable-next-line unicorn/consistent-class-member-order
   async #findUserBindDN(
     sAMAccountName: string
   ): Promise<

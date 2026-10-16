@@ -90,7 +90,6 @@ export default class ActiveDirectoryAuthenticate {
     clearCache() {
         this.#userBindDNsCache?.flushAll();
     }
-    // eslint-disable-next-line unicorn/consistent-class-member-order
     async #findUserBindDN(sAMAccountName) {
         const client = new LdapClient(this.#clientOptions);
         try {
