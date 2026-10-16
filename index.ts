@@ -179,6 +179,7 @@ export default class ActiveDirectoryAuthenticate {
     this.#userBindDNsCache?.flushAll()
   }
 
+  // eslint-disable-next-line unicorn/consistent-class-member-order
   async #findUserBindDN(
     sAMAccountName: string
   ): Promise<
@@ -264,6 +265,7 @@ export default class ActiveDirectoryAuthenticate {
     const client = new LdapClient(this.#clientOptions)
 
     try {
+      debug('Attempting to bind as user %s', userBindDN)
       await client.bind(userBindDN, password)
 
       return {
@@ -286,6 +288,7 @@ export default class ActiveDirectoryAuthenticate {
           }
         }
       }
+
       return {
         success: false,
 

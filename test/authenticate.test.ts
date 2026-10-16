@@ -1,3 +1,5 @@
+/* eslint-disable node-test/no-async-describe */
+
 import assert from 'node:assert'
 import { after, describe, it } from 'node:test'
 
@@ -6,8 +8,11 @@ import Debug from 'debug'
 import { DEBUG_ENABLE_NAMESPACES, DEBUG_NAMESPACE } from '../debug.config.js'
 import ActiveDirectoryAuthenticate from '../index.js'
 
+// eslint-disable-next-line node-test/no-import-test-files
 import {
   activeDirectoryAuthenticateConfig,
+  failingActiveDirectoryAuthenticateConfig,
+  failingLdapClientOptions,
   failureUsers,
   ldapClientOptions,
   ldapUrl,
@@ -57,6 +62,48 @@ await describe('activedirectory-authenticate', async () => {
       )
     })
   }
+})
+
+await describe.skip('activedirectory-authenticate:fail', async () => {
+  await it('should not authenticate a user with a failing LDAP URL', async () => {
+    const authenticator = new ActiveDirectoryAuthenticate(
+      failingLdapClientOptions,
+      activeDirectoryAuthenticateConfig
+    )
+
+    const result = await authenticator.authenticate(
+      successUsers[0][0],
+      successUsers[0][1]
+    )
+
+    debug(`Authentication result for "${successUsers[0][0]}":`, result)
+
+    assert.strictEqual(
+      result.success,
+      false,
+      `Authentication should fail for "${successUsers[0][0]}" with a failing URL`
+    )
+  })
+
+  await it('should not authenticate a user with a failing Active Directory configuration', async () => {
+    const authenticator = new ActiveDirectoryAuthenticate(
+      ldapClientOptions,
+      failingActiveDirectoryAuthenticateConfig
+    )
+
+    const result = await authenticator.authenticate(
+      successUsers[0][0],
+      successUsers[0][1]
+    )
+
+    debug(`Authentication result for "${successUsers[0][0]}":`, result)
+
+    assert.strictEqual(
+      result.success,
+      false,
+      `Authentication should fail for "${successUsers[0][0]}" with a failing Active Directory configuration`
+    )
+  })
 })
 
 await describe('activedirectory-authenticate:url', async () => {
