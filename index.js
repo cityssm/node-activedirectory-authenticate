@@ -1,10 +1,10 @@
+import { debuglog } from 'node:util';
 import { NodeCache } from '@cacheable/node-cache';
-import Debug from 'debug';
 import { AndFilter, EqualityFilter, InvalidCredentialsError, Client as LdapClient } from 'ldapts';
 import { DEBUG_NAMESPACE } from './debug.config.js';
 import { adLdapBindErrors } from './errorTypes.js';
 import { getUsernamePart } from './utilities.js';
-const debug = Debug(`${DEBUG_NAMESPACE}:index`);
+const debug = debuglog(`${DEBUG_NAMESPACE}:index`);
 export default class ActiveDirectoryAuthenticate {
     #activeDirectoryAuthenticateConfig;
     #clientOptions;
@@ -175,4 +175,5 @@ export default class ActiveDirectoryAuthenticate {
         }
     }
 }
+export { DEBUG_NAMESPACE } from './debug.config.js';
 export { activeDirectoryErrors } from './errorTypes.js';

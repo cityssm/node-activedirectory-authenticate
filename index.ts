@@ -1,5 +1,6 @@
+import { debuglog } from 'node:util'
+
 import { NodeCache } from '@cacheable/node-cache'
-import Debug from 'debug'
 import {
   type ClientOptions as LdapClientOptions,
   AndFilter,
@@ -15,7 +16,7 @@ import {
 } from './errorTypes.js'
 import { getUsernamePart } from './utilities.js'
 
-const debug = Debug(`${DEBUG_NAMESPACE}:index`)
+const debug = debuglog(`${DEBUG_NAMESPACE}:index`)
 
 export interface ActiveDirectoryAuthenticateConfig {
   /**
@@ -300,6 +301,8 @@ export default class ActiveDirectoryAuthenticate {
     }
   }
 }
+
+export { DEBUG_NAMESPACE } from './debug.config.js'
 
 export {
   type ActiveDirectoryAuthenticateErrorType,

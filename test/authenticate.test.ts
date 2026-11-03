@@ -2,10 +2,9 @@
 
 import assert from 'node:assert'
 import { after, describe, it } from 'node:test'
+import { debuglog } from 'node:util'
 
-import Debug from 'debug'
-
-import { DEBUG_ENABLE_NAMESPACES, DEBUG_NAMESPACE } from '../debug.config.js'
+import { DEBUG_NAMESPACE } from '../debug.config.js'
 import ActiveDirectoryAuthenticate from '../index.js'
 
 // eslint-disable-next-line node-test/no-import-test-files
@@ -19,9 +18,7 @@ import {
   successUsers
 } from './config.local.js'
 
-Debug.enable(DEBUG_ENABLE_NAMESPACES)
-
-const debug = Debug(`${DEBUG_NAMESPACE}:test`)
+const debug = debuglog(`${DEBUG_NAMESPACE}:test`)
 
 await describe('activedirectory-authenticate', async () => {
   const authenticator = new ActiveDirectoryAuthenticate(

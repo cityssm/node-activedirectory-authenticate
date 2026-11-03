@@ -78,5 +78,6 @@ export default class ActiveDirectoryAuthenticate {
      */
     clearCache(): void;
 }
+export { DEBUG_NAMESPACE } from './debug.config.js';
 export { type ActiveDirectoryAuthenticateErrorType, activeDirectoryErrors } from './errorTypes.js';
 export type { ClientOptions as LdapClientOptions } from 'ldapts';
