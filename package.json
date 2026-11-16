@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
-    "eslint-config-cityssm": "^59.0.1",
+    "eslint-config-cityssm": "^60.0.1",
     "prettier-config-cityssm": "^2.2.0"
   },
   "engines": {
